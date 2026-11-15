@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sur Zameen · Hear the Earth's Lights Change</title>
+  <meta name="description" content="NASA Space Apps Challenge 2026: Sonification of NASA Earth Information Center Night Lights in South Asian Classical Raags.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+  <style>
+    :root {
+      --bg: #070914;
+      --indigo: #14183a;
+      --indigo-card: #0f132f;
+      --indigo-deep: #0a0d20;
+      --gold: #f2b441;
+      --gold-hover: #f7c364;
+      --gold-dim: rgba(242, 180, 65, 0.22);
+      --gold-border: rgba(242, 180, 65, 0.38);
+      --cream: #f4ecd8;
+      --cream-muted: #c9c0aa;
+      --teal: #5ea8c7;
+      --focus-ring: #f2b441;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(1px 1px at 20px 30px, rgba(244, 236, 216, 0.7), transparent),
+        radial-gradient(1.5px 1.5px at 140px 90px, rgba(242, 180, 65, 0.8), transparent),
+        radial-gradient(1px 1px at 280px 210px, rgba(94, 168, 199, 0.7), transparent),
+        radial-gradient(1.5px 1.5px at 420px 70px, rgba(244, 236, 216, 0.6), transparent),
+        radial-gradient(1px 1px at 600px 320px, rgba(242, 180, 65, 0.75), transparent),
+        radial-gradient(1.5px 1.5px at 780px 140px, rgba(244, 236, 216, 0.8), transparent),
+        radial-gradient(1px 1px at 940px 270px, rgba(94, 168, 199, 0.6), transparent),
+        linear-gradient(180deg, #070914 0%, #0d1028 50%, #14183a 100%);
+      background-attachment: fixed;
+      color: var(--cream);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      padding: 1.5rem 1rem 3rem 1rem;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    /* Ambient Twinkling Stars (Low CPU Canvas/CSS) */
+    .star-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      background: radial-gradient(circle at 50% 15%, rgba(94, 168, 199, 0.08), transparent 60%);
+      animation: subtleTwinkle 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes subtleTwinkle {
+      0% { opacity: 0.65; }
+      100% { opacity: 1.0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .star-layer, .now-playing-strip.pulsing, .note-pulse {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+
+    .container {
+      max-width: 1060px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Keyboard Skip Link */
+    .skip-link {
+      position: absolute;
+      top: -60px;
+      left: 10px;
+      background: var(--gold);
+      color: #070914;
+      padding: 10px 18px;
+      font-weight: 700;
+      z-index: 1000;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: top 0.2s;
+    }
+    .skip-link:focus {
+      top: 10px;
+    }
+
+    /* Focus styling */
+    button:focus-visible,
+    select:focus-visible,
+    input:focus-visible,
+    summary:focus-visible,
+    a:focus-visible {
+      outline: 3px solid var(--focus-ring) !important;
+      outline-offset: 3px !important;
+    }
+
+    /* 1. HEADER */
+    header {
+      margin-bottom: 1.5rem;
+      text-align: center;
+      padding: 0.5rem 0 1rem 0;
+    }
+
+    .title-row {
+      display: inline-flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    h1.main-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 2.85rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.02em;
+      text-shadow: 0 0 25px rgba(242, 180, 65, 0.35);
+      line-height: 1.1;
+    }
+
+    .urdu-title {
+      font-family: 'Amiri', serif;
+      font-size: 1.85rem;
+      color: var(--cream);
+      direction: rtl;
+      unicode-bidi: isolate;
+      opacity: 0.9;
+      letter-spacing: 0.02em;
+    }
+
+    p.tagline {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic;
+      font-size: 1.25rem;
+      color: var(--teal);
+      letter-spacing: 0.03em;
+      margin-top: 0.3rem;
+    }
+
+    /* Delicate Jaali-Style Line Divider */
+    .jaali-divider {
+      width: 100%;
+      height: 18px;
+      margin: 1.25rem auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.75;
+    }
+    .jaali-divider svg {
+      width: 100%;
+      max-width: 720px;
+      height: 16px;
+    }
+
+    /* Screen Reader Live Region */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .live-description-banner {
+      background: rgba(20, 24, 58, 0.7);
+      border: 1px solid var(--gold-border);
+      border-left: 4px solid var(--gold);
+      padding: 0.75rem 1.1rem;
+      border-radius: 6px;
+      margin-bottom: 1.25rem;
+      font-size: 0.92rem;
+      color: var(--cream);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      backdrop-filter: blur(6px);
+    }
+    .live-icon {
+      color: var(--gold);
+      font-size: 1.1rem;
+    }
+
+    /* 2. HERO: NASA 32:9 Frame with subtle ornamental corners */
+    .hero-stage {
+      position: relative;
+      margin-bottom: 1.25rem;
+    }
+
+    .frame-wrapper {
+      position: relative;
+      border: 1px solid var(--gold-border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #000;
+      box-shadow: 0 0 35px rgba(242, 180, 65, 0.12), 0 20px 45px rgba(0, 0, 0, 0.8);
+    }
+
+    /* CSS-Only Ornamental Corner Details */
+    .corner {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-color: var(--gold);
+      border-style: solid;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .corner-tl { top: 4px; left: 4px; border-width: 2px 0 0 2px; }
+    .corner-tr { top: 4px; right: 4px; border-width: 2px 2px 0 0; }
+    .corner-bl { bottom: 4px; left: 4px; border-width: 0 0 2px 2px; }
+    .corner-br { bottom: 4px; right: 4px; border-width: 0 2px 2px 0; }
+
+    .viewer-display {
+      position: relative;
+      background: #000;
+      width: 100%;
+      aspect-ratio: 1920 / 540;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .viewer-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .viewer-hidden-msg {
+      display: none;
+      color: var(--gold);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.35rem;
+      text-align: center;
+      padding: 2rem;
+    }
+    .viewer-display.visuals-off .viewer-img { display: none; }
+    .viewer-display.visuals-off .viewer-hidden-msg { display: block; }
+
+    /* Frame Badges */
+    .frame-overlay {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(7, 9, 20, 0.85);
+      border: 1px solid rgba(242, 180, 65, 0.35);
+      backdrop-filter: blur(5px);
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.02em;
+    }
+
+    .musical-badge {
+      position: absolute;
+      bottom: 14px;
+      right: 14px;
+      background: rgba(7, 9, 20, 0.9);
+      border: 1px solid var(--gold);
+      backdrop-filter: blur(5px);
+      padding: 0.35rem 0.9rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--cream);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .note-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 10px var(--gold);
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+    .note-pulse.pulsing {
+      transform: scale(1.8);
+      background: #ffffff;
+      box-shadow: 0 0 16px var(--gold);
+    }
+
+    /* 3. CONTROL BAR */
+    .control-card {
+      background: var(--indigo-card);
+      border: 1px solid var(--gold-border);
+      border-radius: 10px;
+      padding: 1.3rem 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .timeline-row {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .timeline-slider {
+      flex: 1;
+      height: 8px;
+      border-radius: 4px;
+      background: #252b58;
+      outline: none;
+      cursor: pointer;
+      accent-color: var(--gold);
+      transition: background 0.2s;
+    }
+
+    .controls-main-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .btn-cluster {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    /* Round Gold Buttons & Big Touch Targets */
+    .btn-gold {
+      background: var(--gold);
+      color: #070914;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-height: 48px;
+      min-width: 48px;
+      box-shadow: 0 3px 12px rgba(242, 180, 65, 0.3);
+      transition: all 0.2s ease;
+    }
+    .btn-gold:hover:not(:disabled) {
+      background: var(--gold-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 5px 16px rgba(242, 180, 65, 0.45);
+    }
+
+    .btn-gold.btn-active {
+      background: #ffffff;
+      color: #070914;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+    }
+
+    .btn-round-step {
+      background: rgba(20, 24, 58, 0.9);
+      border: 1px solid var(--gold-border);
+      color: var(--cream);
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      transition: all 0.2s;
+    }
+    .btn-round-step:hover:not(:disabled) {
+      background: var(--indigo);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .btn-drone {
+      background: rgba(20, 24, 58, 0.85);
+      border: 1px solid var(--gold-border);
+      color: var(--cream);
+      padding: 0.65rem 1.25rem;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      min-height: 48px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+    .btn-drone:hover:not(:disabled) {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .btn-drone.btn-active {
+      background: rgba(242, 180, 65, 0.18);
+      border-color: var(--gold);
+      color: var(--gold);
+      box-shadow: 0 0 14px rgba(242, 180, 65, 0.25);
+    }
+
+    select.raag-select {
+      background: rgba(10, 13, 32, 0.95);
+      color: var(--cream);
+      border: 1px solid var(--gold-border);
+      padding: 0.65rem 1.1rem;
+      border-radius: 24px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      min-height: 48px;
+    }
+
+    .toggle-visuals-label {
+      font-size: 0.88rem;
+      color: var(--cream-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      cursor: pointer;
+      user-select: none;
+      min-height: 48px;
+    }
+    .toggle-visuals-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--gold);
+      cursor: pointer;
+    }
+
+    /* 4. NOW PLAYING STRIP (Latin & Devanagari) */
+    .now-playing-strip {
+      background: linear-gradient(90deg, rgba(20, 24, 58, 0.92) 0%, rgba(15, 19, 47, 0.92) 100%);
+      border: 1px solid var(--gold-border);
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .now-playing-strip.note-pulse-active {
+      border-color: var(--gold);
+      box-shadow: 0 0 24px rgba(242, 180, 65, 0.32);
+    }
+
+    .swar-display-group {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .swar-devanagari {
+      font-family: 'Inter', sans-serif;
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: var(--gold);
+      min-width: 54px;
+      line-height: 1;
+      text-shadow: 0 0 15px rgba(242, 180, 65, 0.4);
+    }
+
+    .swar-details {
+      display: flex;
+      flex-direction: column;
+    }
+    .swar-latin {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--cream);
+      line-height: 1.2;
+    }
+    .swar-hz {
+      font-family: 'Inter', monospace;
+      font-size: 0.88rem;
+      color: var(--teal);
+    }
+
+    .stage-metric-group {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .metric-pill {
+      display: flex;
+      flex-direction: column;
+    }
+    .metric-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--cream-muted);
+    }
+    .metric-data {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--gold);
+      font-family: ui-monospace, SFMono-Regular, monospace;
+    }
+
+    /* 5. "HOW THIS SOUNDS" (Collapsible 3-Card Row) */
+    .how-it-sounds-card {
+      background: var(--indigo-deep);
+      border: 1px solid rgba(242, 180, 65, 0.25);
+      border-radius: 10px;
+      padding: 0;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    details.how-details {
+      width: 100%;
+    }
+
+    summary.how-summary {
+      padding: 1.1rem 1.5rem;
+      cursor: pointer;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--gold);
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+      background: rgba(20, 24, 58, 0.6);
+      transition: background 0.2s;
+    }
+    summary.how-summary::-webkit-details-marker { display: none; }
+    summary.how-summary:hover {
+      background: rgba(20, 24, 58, 0.9);
+    }
+    summary.how-summary::after {
+      content: "▼";
+      font-size: 0.85rem;
+      color: var(--teal);
+      transition: transform 0.25s ease;
+    }
+    details[open] summary.how-summary::after {
+      transform: rotate(180deg);
+    }
+
+    .how-content {
+      padding: 1.25rem 1.5rem 1.5rem 1.5rem;
+    }
+
+    .cards-three-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.1rem;
+    }
+
+    .sound-card {
+      background: rgba(20, 24, 58, 0.65);
+      border: 1px solid rgba(242, 180, 65, 0.2);
+      border-top: 3px solid var(--gold);
+      border-radius: 8px;
+      padding: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .sound-card.card-finale {
+      border-top-color: #c084fc;
+    }
+
+    .sound-card-header {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--cream);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sound-badge {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem;
+      background: rgba(242, 180, 65, 0.15);
+      color: var(--gold);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .sound-card.card-finale .sound-badge {
+      background: rgba(192, 132, 252, 0.2);
+      color: #c084fc;
+    }
+
+    .sound-card-text {
+      font-size: 0.88rem;
+      color: var(--cream-muted);
+      line-height: 1.45;
+    }
+    .sound-card-text strong {
+      color: var(--cream);
+    }
+
+    /* 6. FOOTER */
+    footer {
+      border-top: 1px solid rgba(242, 180, 65, 0.15);
+      padding-top: 1.5rem;
+      text-align: center;
+      font-size: 0.84rem;
+      color: var(--cream-muted);
+      line-height: 1.7;
+    }
+    footer a {
+      color: var(--teal);
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+    .credits-line {
+      margin-top: 0.35rem;
+      font-size: 0.78rem;
+      opacity: 0.8;
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 640px) {
+      h1.main-title { font-size: 2.2rem; }
+      .urdu-title { font-size: 1.5rem; }
+      .swar-display-group { gap: 0.75rem; }
+      .swar-devanagari { font-size: 1.8rem; }
+      .controls-main-row { justify-content: center; }
+      .btn-cluster { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="star-layer" aria-hidden="true"></div>
+  <a href="#main-controls" class="skip-link">Skip to Audio Controls</a>
+
+  <div class="container">
+    <!-- 1. HEADER -->
+    <header>
+      <div class="title-row">
+        <h1 class="main-title">Sur Zameen</h1>
+        <span class="urdu-title" dir="rtl" lang="ur">سُر زمین</span>
+      </div>
+      <p class="tagline">Hear the Earth's lights change</p>
+
+      <!-- Desi Touch Jaali Line -->
+      <div class="jaali-divider" aria-hidden="true">
+        <svg viewBox="0 0 600 16" fill="none" preserveAspectRatio="none">
+          <path d="M0 8 Q 15 0, 30 8 T 60 8 T 90 8 T 120 8 T 150 8 T 180 8 T 210 8 T 240 8 T 270 8 T 300 8 T 330 8 T 360 8 T 390 8 T 420 8 T 450 8 T 480 8 T 510 8 T 540 8 T 570 8 T 600 8" stroke="rgba(242, 180, 65, 0.35)" stroke-width="1.2"/>
+          <circle cx="300" cy="8" r="4.5" fill="#f2b441" fill-opacity="0.8"/>
+          <circle cx="280" cy="8" r="2.2" fill="#f2b441" fill-opacity="0.5"/>
+          <circle cx="320" cy="8" r="2.2" fill="#f2b441" fill-opacity="0.5"/>
+        </svg>
+      </div>
+    </header>
+
+    <!-- Plain-English Live Text for Blind & Low-Vision Users -->
+    <div class="live-description-banner" role="status" aria-live="polite" id="liveTextContainer">
+      <span class="live-icon" aria-hidden="true">✨</span>
+      <span id="liveText">Loading NASA Earth Information Center night lights dataset...</span>
+    </div>
+
+    <!-- 2. HERO: NASA FRAME -->
+    <main>
+      <section class="hero-stage" aria-label="NASA Earth Night Lights Visualization">
+        <div class="frame-wrapper">
+          <!-- Subtle Ornamental Corner Details -->
+          <div class="corner corner-tl" aria-hidden="true"></div>
+          <div class="corner corner-tr" aria-hidden="true"></div>
+          <div class="corner corner-bl" aria-hidden="true"></div>
+          <div class="corner corner-br" aria-hidden="true"></div>
+
+          <div class="viewer-display" id="viewerDisplay" aria-hidden="true">
+            <img id="frameImage" class="viewer-img" src="frames/f_001.png" alt="NASA Earth Information Center 32:9 Night Lights equirectangular frame view">
+            <div class="viewer-hidden-msg">
+              🌙 Audio-Only Mode Active<br>
+              <span style="font-size: 0.95rem; color: var(--teal);">Visual display concealed for pure auditory perception.</span>
+            </div>
+
+            <div class="frame-overlay" id="frameBadge">
+              <span id="badgeSection">Series: Frame 1 of 10</span>
+            </div>
+
+            <!-- Legacy badge kept for JS compatibility -->
+            <div class="musical-badge" id="musicalBadge">
+              <span class="note-pulse" id="notePulse" aria-hidden="true"></span>
+              <span id="currentNoteText">Sa · 138.6 Hz</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. CONTROL BAR -->
+      <section class="control-card" id="main-controls" aria-label="Playback & Timeline Controls">
+        <div class="timeline-row">
+          <label for="timelineScrubber" class="sr-only">Timeline scrubber: 10 series frames followed by the 2012-2023 change map finale</label>
+          <input type="range" id="timelineScrubber" class="timeline-slider" min="0" max="10" step="1" value="0" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" aria-valuetext="Frame 1 of 10">
+        </div>
+
+        <div class="controls-main-row">
+          <div class="btn-cluster">
+            <button id="btnPlayPause" class="btn-gold" aria-label="Play sonification sequence">
+              <span aria-hidden="true" style="font-size: 1.15rem;">▶</span> <span id="playText">Play Jukebox</span>
+            </button>
+            <button id="btnPrev" class="btn-round-step" aria-label="Previous frame">◀</button>
+            <button id="btnNext" class="btn-round-step" aria-label="Next frame">▶</button>
+            <button id="btnDrone" class="btn-drone" aria-label="Toggle continuous Tanpura drone on Sa and Pa">
+              <span aria-hidden="true">🪕</span> <span>Tanpura: Off</span>
+            </button>
+          </div>
+
+          <div class="btn-cluster">
+            <label for="raagSelect" class="sr-only">Choose Raag scale</label>
+            <select id="raagSelect" class="raag-select" aria-label="Select musical Raag scale">
+              <option value="yaman">Raag Yaman (Evening · Tivra Ma)</option>
+              <option value="bhairavi">Raag Bhairavi (Dawn · All Komal)</option>
+            </select>
+
+            <label class="toggle-visuals-label" for="toggleVisuals">
+              <input type="checkbox" id="toggleVisuals">
+              <span>Audio-only mode</span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. NOW PLAYING STRIP (Latin & Devanagari) -->
+      <section class="now-playing-strip" id="nowPlayingStrip" aria-label="Now Playing Acoustical Parameters">
+        <div class="swar-display-group">
+          <div class="swar-devanagari" id="devanagariSwar" aria-hidden="true">सा</div>
+          <div class="swar-details">
+            <span class="swar-latin" id="latinSwar">Sa (Shuddha)</span>
+            <span class="swar-hz" id="hzSwar">138.59 Hz · Madhya Saptak</span>
+          </div>
+        </div>
+
+        <div class="stage-metric-group">
+          <div class="metric-pill">
+            <span class="metric-label">Stage</span>
+            <span class="metric-data" id="dispStage">1 / 10</span>
+          </div>
+          <div class="metric-pill">
+            <span class="metric-label">Mean Brightness</span>
+            <span class="metric-data" id="dispBrt">0.000</span>
+          </div>
+          <div class="metric-pill">
+            <span class="metric-label">Electrification %</span>
+            <span class="metric-data" id="dispDensity">0.0%</span>
+          </div>
+          <div class="metric-pill">
+            <span class="metric-label">Yearly Shift</span>
+            <span class="metric-data" id="dispDiff">0.000</span>
+          </div>
+          <div class="metric-pill" id="changeMetricCell" style="display: none;">
+            <span class="metric-label" style="color: #c084fc;">Purple : Orange</span>
+            <span class="metric-data" id="dispRatio" style="color: #c084fc;">2.75 : 1</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. "HOW THIS SOUNDS" (Collapsible 3-Card Row) -->
+      <section class="how-it-sounds-card" aria-label="Sonification Mapping Principles">
+        <details class="how-details" open>
+          <summary class="how-summary">
+            How This Sounds: Scientific Sonification Logic
+          </summary>
+          <div class="how-content">
+            <div class="cards-three-row">
+              <!-- Pitch -->
+              <div class="sound-card">
+                <div class="sound-card-header">
+                  <span>Pitch Register</span>
+                  <span class="sound-badge">Brightness</span>
+                </div>
+                <p class="sound-card-text">
+                  <strong>Mean Brightness &rarr; Scale Degree:</strong> Higher planetary radiant energy from illuminated cities maps to higher frequencies in Just Intonation.
+                </p>
+              </div>
+
+              <!-- Density -->
+              <div class="sound-card">
+                <div class="sound-card-header">
+                  <span>Rhythmic Pulse</span>
+                  <span class="sound-badge">Density</span>
+                </div>
+                <p class="sound-card-text">
+                  <strong>Bright Pixel Fraction &rarr; Note Density:</strong> Expanding territorial electrification subdivides time from contemplative single notes to rapid Jhala pulses.
+                </p>
+              </div>
+
+              <!-- Tempo -->
+              <div class="sound-card">
+                <div class="sound-card-header">
+                  <span>Tempo & Meend</span>
+                  <span class="sound-badge">Change Rate</span>
+                </div>
+                <p class="sound-card-text">
+                  <strong>Frame Difference &rarr; Tempo & Glide:</strong> Accelerating inter-annual shifts shorten note duration and trigger expressive microtonal meend glides.
+                </p>
+              </div>
+
+              <!-- Finale Note -->
+              <div class="sound-card card-finale" style="grid-column: 1 / -1;">
+                <div class="sound-card-header">
+                  <span style="color: #c084fc;">Change Map Finale</span>
+                  <span class="sound-badge">Ascending Arohana</span>
+                </div>
+                <p class="sound-card-text">
+                  <strong>Purple &gt; Orange &rarr; Ascending Raag Phrase:</strong> Light growth exceeds decline by 2.75:1 globally, triggering an uplifting ascending classical sequence.
+                </p>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+    </main>
+
+    <!-- 6. FOOTER -->
+    <footer>
+      <div>
+        <strong>Sur Zameen</strong> (Karachi, Pakistan) · NASA Space Apps Challenge 2026: <em>The Earth Information Jukebox</em>
+      </div>
+      <div class="credits-line">
+        Data: <a href="https://svs.gsfc.nasa.gov/5313/" target="_blank" rel="noopener">NASA Scientific Visualization Studio (#5313)</a>, NASA Black Marble, VIIRS &middot; Sonification: <a href="https://tonejs.github.io/" target="_blank" rel="noopener">Tone.js</a> &amp; Web Audio API in Just Intonation.
+      </div>
+      <div class="credits-line" style="color: var(--teal); margin-top: 0.5rem;">
+        Shortcuts: <kbd>Space</kbd> Play/Pause &middot; <kbd>&larr;</kbd>/<kbd>&rarr;</kbd> Scrub &middot; <kbd>D</kbd> Tanpura Drone &middot; <kbd>V</kbd> Audio-Only Mode
+      </div>
+    </footer>
+  </div>
+
+  <script type="module">
+    import { SurZameenAudioEngine, RAAG_SCALES } from './audio-engine.js';
+
+    // Devanagari representation for classical Hindustani swars
+    const DEVANAGARI_MAP = {
+      'Sa': 'सा',
+      'Sa (Upper)': 'सां',
+      'Sa (High)': 'सां',
+      'Re': 'रे',
+      'Re (komal)': 'रे॒',
+      'Ga': 'ग',
+      'Ga (komal)': 'ग॒',
+      'Ma (tivra)': 'म॑',
+      'Ma': 'म',
+      'Pa': 'प',
+      'Dha': 'धा',
+      'Dha (komal)': 'धा॒',
+      'Ni': 'नि',
+      'Ni (komal)': 'नि॒'
+    };
+
+    let data = null;
+    let engine = null;
+    let isPlaying = false;
+    let currentIndex = 0; // 0 to 9 = series frames, 10 = change map finale
+    let playTimer = null;
+    let finaleTimeouts = [];
+
+    // DOM Elements
+    const frameImage = document.getElementById('frameImage');
+    const viewerDisplay = document.getElementById('viewerDisplay');
+    const badgeSection = document.getElementById('badgeSection');
+    const musicalBadge = document.getElementById('musicalBadge');
+    const currentNoteText = document.getElementById('currentNoteText');
+    const notePulse = document.getElementById('notePulse');
+    const liveText = document.getElementById('liveText');
+    const timelineScrubber = document.getElementById('timelineScrubber');
+    const btnPlayPause = document.getElementById('btnPlayPause');
+    const playText = document.getElementById('playText');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const btnDrone = document.getElementById('btnDrone');
+    const raagSelect = document.getElementById('raagSelect');
+    const toggleVisuals = document.getElementById('toggleVisuals');
+
+    // Redesigned Now Playing Elements
+    const nowPlayingStrip = document.getElementById('nowPlayingStrip');
+    const devanagariSwar = document.getElementById('devanagariSwar');
+    const latinSwar = document.getElementById('latinSwar');
+    const hzSwar = document.getElementById('hzSwar');
+
+    // Readout metrics
+    const dispStage = document.getElementById('dispStage');
+    const dispBrt = document.getElementById('dispBrt');
+    const dispDensity = document.getElementById('dispDensity');
+    const dispDiff = document.getElementById('dispDiff');
+    const dispRatio = document.getElementById('dispRatio');
+    const changeMetricCell = document.getElementById('changeMetricCell');
+
+    // Initialize Audio Engine & Load Data
+    async function initApp() {
+      try {
+        const res = await fetch('./data.json');
+        data = await res.json();
+        engine = new SurZameenAudioEngine({ raag: raagSelect.value });
+
+        renderFrame(0, false);
+        liveText.textContent = "NASA Night Lights dataset loaded. Press 'Play Jukebox' or Spacebar to begin.";
+      } catch (err) {
+        console.error("Initialization error:", err);
+        liveText.textContent = "Error loading data.json. Ensure files are hosted on an HTTP server.";
+      }
+    }
+
+    // Flash visual note pulse & update Devanagari strip
+    function pulseNoteIndicator(degreeText, noteInfo = null) {
+      currentNoteText.textContent = degreeText;
+      notePulse.classList.add('pulsing');
+      nowPlayingStrip.classList.add('note-pulse-active');
+
+      if (noteInfo) {
+        const baseDegree = noteInfo.degreeName.split(' ')[0];
+        const devanagari = DEVANAGARI_MAP[noteInfo.degreeName] || DEVANAGARI_MAP[baseDegree] || 'सा';
+        devanagariSwar.textContent = devanagari;
+        latinSwar.textContent = `${noteInfo.degreeName} (${noteInfo.symbol})`;
+        hzSwar.textContent = `${noteInfo.frequencyHz.toFixed(1)} Hz · ${noteInfo.octaveLabel || 'Madhya'}`;
+      }
+
+      setTimeout(() => {
+        notePulse.classList.remove('pulsing');
+        nowPlayingStrip.classList.remove('note-pulse-active');
+      }, 200);
+    }
+
+    // Render frame data & update UI + screen-reader announcement
+    function renderFrame(index, triggerAudio = false) {
+      if (!data) return;
+      currentIndex = index;
+      timelineScrubber.value = index;
+
+      const isFinale = (index === 10);
+
+      if (!isFinale) {
+        // Series Frame (0 to 9)
+        const frame = data.series[index];
+        frameImage.src = frame.image;
+        badgeSection.textContent = `Series: Frame ${index + 1} of 10`;
+        changeMetricCell.style.display = 'none';
+
+        dispStage.textContent = `${index + 1} / 10`;
+        dispBrt.textContent = `${frame.mean_brightness.toFixed(3)}`;
+        dispDensity.textContent = `${(frame.bright_pixel_fraction * 100).toFixed(1)}%`;
+        dispDiff.textContent = `${frame.diff_from_prev.toFixed(3)}`;
+
+        // Plain English text description for aria-live
+        const brtDesc = frame.mean_brightness < 0.25 ? "low baseline" : (frame.mean_brightness < 0.65 ? "moderate" : "high");
+        const densDesc = frame.bright_pixel_fraction < 0.35 ? "sparse settlement lights" : (frame.bright_pixel_fraction < 0.7 ? "expanding electrified zones" : "widespread urban illumination");
+        const initialNote = engine.quantizeDataToScale(frame.mean_brightness);
+        const a11yMsg = `Frame ${index + 1} of 10: ${brtDesc} global brightness with ${densDesc}. Note: ${initialNote.degreeName} (${initialNote.frequencyHz.toFixed(1)} Hz).`;
+        liveText.textContent = a11yMsg;
+
+        if (triggerAudio && engine && engine.isStarted) {
+          playSeriesFrameAudio(frame);
+        } else {
+          pulseNoteIndicator(`${initialNote.degreeName} · ${initialNote.frequencyHz.toFixed(1)} Hz`, initialNote);
+        }
+      } else {
+        // Change Map Finale (index 10)
+        const change = data.change_map;
+        frameImage.src = change.image;
+        badgeSection.textContent = `Finale: 2012–2023 Change Map`;
+        changeMetricCell.style.display = 'flex';
+
+        dispStage.textContent = `Finale`;
+        dispBrt.textContent = `Overview`;
+        dispDensity.textContent = `100%`;
+        dispDiff.textContent = `Decade`;
+        dispRatio.textContent = `${change.purple_to_orange_ratio}:1`;
+
+        const a11yMsg = `Finale Change Map (2012 to 2023): Purple light expansion exceeds orange decline by ${change.purple_to_orange_ratio} to 1. Playing ascending triumphant Raag phrase.`;
+        liveText.textContent = a11yMsg;
+
+        if (triggerAudio && engine && engine.isStarted) {
+          playChangeFinaleAudio(change);
+        }
+      }
+    }
+
+    // Play sonification for a series frame (~1.2s total window)
+    function playSeriesFrameAudio(frame) {
+      const baseVal = frame.mean_brightness;
+      const density = frame.bright_pixel_fraction;
+      const diff = frame.diff_from_prev;
+
+      // Rate of change accelerates meend glide speed
+      const glideTime = Math.max(0.08, 0.22 - (diff * 0.12));
+
+      // Note density determines rhythmic subdivision within the 1.2s frame:
+      // Density < 0.35: 1 long singing note
+      // 0.35 to 0.70: 2 notes (at 0ms and 550ms)
+      // > 0.70: 3 rapid notes (at 0ms, 380ms, 760ms)
+      if (density < 0.35) {
+        const noteInfo = engine.playNoteFromData(baseVal, { duration: 0.9, glideTime });
+        pulseNoteIndicator(`${noteInfo.degreeName} · ${noteInfo.frequencyHz.toFixed(1)} Hz`, noteInfo);
+      } else if (density < 0.70) {
+        const n1 = engine.playNoteFromData(baseVal, { duration: 0.45, glideTime });
+        pulseNoteIndicator(`${n1.degreeName} · ${n1.frequencyHz.toFixed(1)} Hz`, n1);
+
+        const t = setTimeout(() => {
+          const val2 = Math.min(1.0, baseVal + 0.08);
+          const n2 = engine.playNoteFromData(val2, { duration: 0.45, glideTime });
+          pulseNoteIndicator(`${n2.degreeName} · ${n2.frequencyHz.toFixed(1)} Hz`, n2);
+        }, 550);
+        finaleTimeouts.push(t);
+      } else {
+        const n1 = engine.playNoteFromData(baseVal, { duration: 0.32, glideTime });
+        pulseNoteIndicator(`${n1.degreeName} · ${n1.frequencyHz.toFixed(1)} Hz`, n1);
+
+        const t1 = setTimeout(() => {
+          const val2 = Math.min(1.0, baseVal + 0.06);
+          const n2 = engine.playNoteFromData(val2, { duration: 0.32, glideTime });
+          pulseNoteIndicator(`${n2.degreeName} · ${n2.frequencyHz.toFixed(1)} Hz`, n2);
+        }, 360);
+
+        const t2 = setTimeout(() => {
+          const val3 = Math.min(1.0, baseVal + 0.12);
+          const n3 = engine.playNoteFromData(val3, { duration: 0.35, glideTime });
+          pulseNoteIndicator(`${n3.degreeName} · ${n3.frequencyHz.toFixed(1)} Hz`, n3);
+        }, 720);
+
+        finaleTimeouts.push(t1, t2);
+      }
+    }
+
+    // Play Change Map Finale
+    // Net light growth (purple > orange) triggers an ascending classical phrase (Arohana)
+    function playChangeFinaleAudio(change) {
+      clearAllTimers();
+      const isGrowth = change.purple_share >= change.orange_share;
+
+      // 7-note ascending or descending sequence across the chosen raag
+      const phraseSteps = isGrowth 
+        ? [0.10, 0.25, 0.40, 0.55, 0.70, 0.85, 1.00]  // Ascending (Arohana)
+        : [1.00, 0.85, 0.70, 0.55, 0.40, 0.25, 0.10]; // Descending (Avarohana)
+
+      phraseSteps.forEach((stepVal, i) => {
+        const t = setTimeout(() => {
+          const isLast = (i === phraseSteps.length - 1);
+          const dur = isLast ? 1.6 : 0.45;
+          const noteInfo = engine.playNoteFromData(stepVal, { duration: dur, glideTime: 0.22 });
+          pulseNoteIndicator(`${noteInfo.degreeName} · ${noteInfo.frequencyHz.toFixed(1)} Hz`, noteInfo);
+          
+          if (isLast) {
+            pausePlayback();
+          }
+        }, i * 480);
+        finaleTimeouts.push(t);
+      });
+    }
+
+    function clearAllTimers() {
+      if (playTimer) {
+        clearInterval(playTimer);
+        playTimer = null;
+      }
+      finaleTimeouts.forEach(t => clearTimeout(t));
+      finaleTimeouts = [];
+    }
+
+    // Play / Pause sequencer
+    async function togglePlay() {
+      if (!engine.isStarted) {
+        await engine.init();
+      }
+
+      if (isPlaying) {
+        pausePlayback();
+      } else {
+        startPlayback();
+      }
+    }
+
+    function startPlayback() {
+      isPlaying = true;
+      btnPlayPause.classList.add('btn-active');
+      btnPlayPause.setAttribute('aria-label', 'Pause sonification sequence');
+      playText.textContent = 'Pause Jukebox';
+
+      if (currentIndex >= 10) {
+        currentIndex = 0;
+      }
+
+      renderFrame(currentIndex, true);
+
+      playTimer = setInterval(() => {
+        currentIndex++;
+        if (currentIndex <= 10) {
+          renderFrame(currentIndex, true);
+          if (currentIndex === 10) {
+            clearInterval(playTimer);
+            playTimer = null;
+          }
+        } else {
+          pausePlayback();
+        }
+      }, 1250);
+    }
+
+    function pausePlayback() {
+      isPlaying = false;
+      btnPlayPause.classList.remove('btn-active');
+      btnPlayPause.setAttribute('aria-label', 'Play sonification sequence');
+      playText.textContent = 'Play Jukebox';
+      clearAllTimers();
+      if (engine) engine.stopMelody();
+    }
+
+    // Event Listeners
+    btnPlayPause.addEventListener('click', togglePlay);
+
+    btnPrev.addEventListener('click', () => {
+      pausePlayback();
+      const prev = Math.max(0, currentIndex - 1);
+      renderFrame(prev, true);
+    });
+
+    btnNext.addEventListener('click', () => {
+      pausePlayback();
+      const next = Math.min(10, currentIndex + 1);
+      renderFrame(next, true);
+    });
+
+    timelineScrubber.addEventListener('input', (e) => {
+      pausePlayback();
+      renderFrame(parseInt(e.target.value, 10), true);
+    });
+
+    btnDrone.addEventListener('click', async () => {
+      if (!engine.isStarted) await engine.init();
+      const isDroneOn = engine.toggleDrone();
+      if (isDroneOn) {
+        btnDrone.innerHTML = '<span>🪕</span> <span>Tanpura: On</span>';
+        btnDrone.classList.add('btn-active');
+      } else {
+        btnDrone.innerHTML = '<span>🪕</span> <span>Tanpura: Off</span>';
+        btnDrone.classList.remove('btn-active');
+      }
+    });
+
+    raagSelect.addEventListener('change', (e) => {
+      if (engine) {
+        engine.setRaag(e.target.value);
+        if (engine.isStarted) {
+          renderFrame(currentIndex, true);
+        }
+      }
+    });
+
+    toggleVisuals.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        viewerDisplay.classList.add('visuals-off');
+      } else {
+        viewerDisplay.classList.remove('visuals-off');
+      }
+    });
+
+    // Keyboard Accessibility Shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'SELECT') return;
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlay();
+      } else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        pausePlayback();
+        const next = Math.min(10, currentIndex + 1);
+        renderFrame(next, true);
+      } else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        pausePlayback();
+        const prev = Math.max(0, currentIndex - 1);
+        renderFrame(prev, true);
+      } else if (e.key === 'd' || e.key === 'D') {
+        btnDrone.click();
+      } else if (e.key === 'v' || e.key === 'V') {
+        toggleVisuals.checked = !toggleVisuals.checked;
+        toggleVisuals.dispatchEvent(new Event('change'));
+      }
+    });
+
+    // Start App
+    initApp();
+  </script>
+</body>
+</html>

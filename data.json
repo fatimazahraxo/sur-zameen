@@ -1,0 +1,174 @@
+{
+  "metadata": {
+    "title": "Sur Zameen - NASA Earth Information Center Night Lights Sonification",
+    "dataset": "NASA SVS #5313: Change in Night Lights 2012-2023",
+    "series_frame_count": 10,
+    "change_frame_count": 1,
+    "skipped_frames": [
+      10,
+      22,
+      "23-43 (zoom insets)"
+    ],
+    "normalization_bounds_series": {
+      "mean_brightness": {
+        "min": 7.680047553047839,
+        "max": 8.041126825810185
+      },
+      "bright_pixel_fraction": {
+        "min": 0.16063271604938273,
+        "max": 0.16587287808641976
+      },
+      "diff_from_prev": {
+        "min": 0.0,
+        "max": 0.7431717399691358
+      }
+    }
+  },
+  "series": [
+    {
+      "frame": 1,
+      "image": "frames/f_001.png",
+      "section": "series",
+      "mean_brightness": 0.0,
+      "bright_pixel_fraction": 0.0,
+      "diff_from_prev": 0.0,
+      "raw": {
+        "mean_brightness": 7.68,
+        "bright_pixel_fraction": 0.160633,
+        "diff_from_prev": 0.0
+      }
+    },
+    {
+      "frame": 2,
+      "image": "frames/f_002.png",
+      "section": "series",
+      "mean_brightness": 0.1073,
+      "bright_pixel_fraction": 0.1218,
+      "diff_from_prev": 0.3063,
+      "raw": {
+        "mean_brightness": 7.7188,
+        "bright_pixel_fraction": 0.161271,
+        "diff_from_prev": 0.2277
+      }
+    },
+    {
+      "frame": 3,
+      "image": "frames/f_003.png",
+      "section": "series",
+      "mean_brightness": 0.129,
+      "bright_pixel_fraction": 0.1872,
+      "diff_from_prev": 0.2827,
+      "raw": {
+        "mean_brightness": 7.7266,
+        "bright_pixel_fraction": 0.161614,
+        "diff_from_prev": 0.2101
+      }
+    },
+    {
+      "frame": 4,
+      "image": "frames/f_004.png",
+      "section": "series",
+      "mean_brightness": 0.2244,
+      "bright_pixel_fraction": 0.309,
+      "diff_from_prev": 0.2882,
+      "raw": {
+        "mean_brightness": 7.7611,
+        "bright_pixel_fraction": 0.162252,
+        "diff_from_prev": 0.2142
+      }
+    },
+    {
+      "frame": 5,
+      "image": "frames/f_005.png",
+      "section": "series",
+      "mean_brightness": 0.2674,
+      "bright_pixel_fraction": 0.3816,
+      "diff_from_prev": 0.2631,
+      "raw": {
+        "mean_brightness": 7.7766,
+        "bright_pixel_fraction": 0.162632,
+        "diff_from_prev": 0.1956
+      }
+    },
+    {
+      "frame": 6,
+      "image": "frames/f_006.png",
+      "section": "series",
+      "mean_brightness": 0.2973,
+      "bright_pixel_fraction": 0.3989,
+      "diff_from_prev": 0.2993,
+      "raw": {
+        "mean_brightness": 7.7874,
+        "bright_pixel_fraction": 0.162723,
+        "diff_from_prev": 0.2224
+      }
+    },
+    {
+      "frame": 7,
+      "image": "frames/f_007.png",
+      "section": "series",
+      "mean_brightness": 0.6192,
+      "bright_pixel_fraction": 0.919,
+      "diff_from_prev": 0.3795,
+      "raw": {
+        "mean_brightness": 7.9036,
+        "bright_pixel_fraction": 0.165448,
+        "diff_from_prev": 0.282
+      }
+    },
+    {
+      "frame": 8,
+      "image": "frames/f_008.png",
+      "section": "series",
+      "mean_brightness": 0.6311,
+      "bright_pixel_fraction": 0.9168,
+      "diff_from_prev": 0.2277,
+      "raw": {
+        "mean_brightness": 7.9079,
+        "bright_pixel_fraction": 0.165437,
+        "diff_from_prev": 0.1692
+      }
+    },
+    {
+      "frame": 9,
+      "image": "frames/f_009.png",
+      "section": "series",
+      "mean_brightness": 0.6369,
+      "bright_pixel_fraction": 0.9199,
+      "diff_from_prev": 0.2149,
+      "raw": {
+        "mean_brightness": 7.91,
+        "bright_pixel_fraction": 0.165453,
+        "diff_from_prev": 0.1597
+      }
+    },
+    {
+      "frame": 11,
+      "image": "frames/f_011.png",
+      "section": "series",
+      "mean_brightness": 1.0,
+      "bright_pixel_fraction": 1.0,
+      "diff_from_prev": 1.0,
+      "raw": {
+        "mean_brightness": 8.0411,
+        "bright_pixel_fraction": 0.165873,
+        "diff_from_prev": 0.7432
+      }
+    }
+  ],
+  "change_map": {
+    "frame": 12,
+    "frame_range": [
+      12,
+      21
+    ],
+    "image": "frames/f_016.png",
+    "section": "change",
+    "title": "2012-2023 Change Map (Decade Overview)",
+    "purple_share": 0.007628,
+    "orange_share": 0.002769,
+    "purple_to_orange_ratio": 2.755,
+    "net_change_direction": 0.4673,
+    "is_net_growth": true
+  }
+}
